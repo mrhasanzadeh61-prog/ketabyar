@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import '../models/book.dart';
 import '../theme/app_theme.dart';
@@ -15,11 +16,14 @@ class BookDetailScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
-            onPressed: () {
-              Navigator.push(
+            onPressed: () async {
+              final result = await Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => AddBookScreen(book: book)),
               );
+              if (result == true && context.mounted) {
+                Navigator.pop(context, true); // برگشت و رفرش لیست
+              }
             },
           ),
         ],
@@ -48,18 +52,10 @@ class BookDetailScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: book.coverPath.isNotEmpty
+                    child: book.coverPath.isNotEmpty && File(book.coverPath).existsSync()
                         ? ClipRRect(
                             borderRadius: BorderRadius.circular(12),
-                            child: Image.network(
-                              book.coverPath, // موقتاً از اینترنت
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) => const Icon(
-                                Icons.book,
-                                size: 60,
-                                color: AppTheme.primaryGreen,
-                              ),
-                            ),
+                            child: Image.file(File(book.coverPath), fit: BoxFit.cover),
                           )
                         : const Icon(Icons.book, size: 60, color: AppTheme.primaryGreen),
                   ),
