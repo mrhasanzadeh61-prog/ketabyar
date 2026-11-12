@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart' as p;
 import '../theme/app_theme.dart';
@@ -45,34 +44,10 @@ class SettingsScreen extends StatelessWidget {
   }
 
   Future<void> _restoreDatabase(BuildContext context) async {
-    try {
-      // باز کردن پنجره انتخاب فایل
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.any,
-      );
-
-      if (result != null && result.files.single.path != null) {
-        final backupFile = File(result.files.single.path!);
-        
-        final dbPath = await getDatabasesPath();
-        final dbFile = File(p.join(dbPath, 'ketabyar.db'));
-
-        await DatabaseHelper.instance.database.then((db) => db.close());
-        await backupFile.copy(dbFile.path);
-
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('بازیابی با موفقیت انجام شد! اپ را ری‌استارت کنید.')),
-          );
-        }
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('خطا در بازیابی: $e')),
-        );
-      }
-    }
+    // فعلاً بازیابی رو غیرفعال می‌کنیم تا بعداً با روش دیگه پیاده‌سازی کنیم
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('بازیابی در نسخه بعدی اضافه می‌شود.')),
+    );
   }
 
   @override
@@ -96,7 +71,7 @@ class SettingsScreen extends StatelessWidget {
             child: ListTile(
               leading: const Icon(Icons.restore, color: AppTheme.primaryGreen),
               title: const Text('بازیابی از فایل پشتیبان'),
-              subtitle: const Text('بازگردانی اطلاعات از فایل'),
+              subtitle: const Text('به زودی...'),
               trailing: const Icon(Icons.chevron_left),
               onTap: () => _restoreDatabase(context),
             ),
