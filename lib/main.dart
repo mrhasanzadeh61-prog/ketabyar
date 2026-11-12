@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'theme/app_theme.dart';
-import 'screens/home_screen.dart';
+import 'screens/main_layout.dart';
 
 void main() {
   runApp(const KetabyarApp());
@@ -33,7 +33,7 @@ class KetabyarApp extends StatelessWidget {
           child: child!,
         );
       },
-      home: const HomeScreen(),
+      home: const MainLayout(),
     );
   }
 }
