@@ -22,35 +22,37 @@ class _AddBookScreenState extends State<AddBookScreen> {
   final _authorController = TextEditingController();
   final _publisherController = TextEditingController();
   final _yearController = TextEditingController();
-  final _locationController = TextEditingController();
   final _tagsController = TextEditingController();
   final _descriptionController = TextEditingController();
   
-  String _category = 'عمومی';
+  String _selectedCategory = 'عمومی';
+  String _selectedShelf = '';
   String _status = 'نخوانده';
   int _rating = 0;
   bool _isLoading = false;
 
-  // عکس
+  // لیست‌های داینامیک
+  List<String> _shelves = [];
+  List<String> _categories = [];
+
   final ImagePicker _picker = ImagePicker();
   File? _imageFile;
-
-  // اسکنر
   bool _isScanning = false;
   bool _isFetchingInfo = false;
 
   @override
   void initState() {
     super.initState();
+    _loadData(); // بارگذاری قفسه‌ها و دسته‌ها
     if (widget.book != null) {
       _titleController.text = widget.book!.title;
       _authorController.text = widget.book!.author;
       _publisherController.text = widget.book!.publisher;
       _yearController.text = widget.book!.year;
-      _locationController.text = widget.book!.location;
       _tagsController.text = widget.book!.tags;
       _descriptionController.text = widget.book!.description;
-      _category = widget.book!.category;
+      _selectedCategory = widget.book!.category;
+      _selectedShelf = widget.book!.location;
       _status = widget.book!.status;
       _rating = widget.book!.rating;
       
@@ -60,13 +62,21 @@ class _AddBookScreenState extends State<AddBookScreen> {
     }
   }
 
+  Future<void> _loadData() async {
+    final shelves = await DatabaseHelper.instance.getShelves();
+    final categories = await DatabaseHelper.instance.getCategories();
+    setState(() {
+      _shelves = shelves;
+      _categories = categories;
+    });
+  }
+
   @override
   void dispose() {
     _titleController.dispose();
     _authorController.dispose();
     _publisherController.dispose();
     _yearController.dispose();
-    _locationController.dispose();
     _tagsController.dispose();
     _descriptionController.dispose();
     super.dispose();
@@ -89,7 +99,6 @@ class _AddBookScreenState extends State<AddBookScreen> {
     }
   }
 
-  // تابع اسکن بارکد
   Future<void> _startScanning() async {
     setState(() => _isScanning = true);
     final result = await Navigator.push(
@@ -100,12 +109,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
     setState(() => _isScanning = false);
 
     if (result != null && result is String) {
-      // نتیجه اسکن (شماره ISBN)
       _fetchBookInfo(result);
     }
   }
 
-  // تابع دریافت اطلاعات از Open Library
   Future<void> _fetchBookInfo(String isbn) async {
     setState(() => _isFetchingInfo = true);
     try {
@@ -138,7 +145,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         } else {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('کتابی با این ISBN پیدا نشد. دستی وارد کنید.')),
+              const SnackBar(content: Text('کتابی با این ISBN پیدا نشد. دستی وارد کنید.')),
             );
           }
         }
@@ -164,10 +171,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
       author: _authorController.text,
       publisher: _publisherController.text,
       year: _yearController.text,
-      category: _category,
+      category: _selectedCategory,
       description: _descriptionController.text,
       coverPath: _imageFile?.path ?? '',
-      location: _locationController.text,
+      location: _selectedShelf,
       status: _status,
       rating: _rating,
       tags: _tagsController.text,
@@ -263,14 +270,22 @@ class _AddBookScreenState extends State<AddBookScreen> {
               const SizedBox(height: 12),
               _buildTextField(_yearController, 'سال چاپ', Icons.date_range, keyboardType: TextInputType.number),
               const SizedBox(height: 12),
-              _buildTextField(_locationController, 'محل نگهداری', Icons.shelves),
-              const SizedBox(height: 12),
               
+              // لیست کشویی قفسه‌ها
               DropdownButtonFormField<String>(
-                value: _category,
+                value: _shelves.contains(_selectedShelf) ? _selectedShelf : null,
+                decoration: const InputDecoration(labelText: 'محل نگهداری', border: OutlineInputBorder(), prefixIcon: Icon(Icons.shelves)),
+                items: _shelves.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+                onChanged: (val) { if (val != null) setState(() => _selectedShelf = val); },
+              ),
+              const SizedBox(height: 12),
+
+              // لیست کشویی دسته‌بندی‌ها
+              DropdownButtonFormField<String>(
+                value: _categories.contains(_selectedCategory) ? _selectedCategory : null,
                 decoration: const InputDecoration(labelText: 'دسته‌بندی', border: OutlineInputBorder(), prefixIcon: Icon(Icons.category)),
-                items: ['عمومی', 'مذهبی', 'ادبیات', 'تاریخی', 'علمی', 'کودک و نوجوان', 'فلسفه'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-                onChanged: (val) { if (val != null) setState(() => _category = val); },
+                items: _categories.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+                onChanged: (val) { if (val != null) setState(() => _selectedCategory = val); },
               ),
               const SizedBox(height: 12),
 
@@ -371,7 +386,6 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
               }
             },
           ),
-          // راهنما
           Align(
             alignment: Alignment.center,
             child: Container(
