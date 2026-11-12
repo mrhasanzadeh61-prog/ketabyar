@@ -77,7 +77,7 @@ class _ManageScreenState extends State<ManageScreen> {
               padding: const EdgeInsets.all(16),
               children: [
                 // بخش قفسه‌ها
-                _buildSectionHeader('قفسه‌ها', Icons.shelves, () => _showAddDialog(true)),
+                _buildSectionHeader('قفسه‌ها', Icons.storage, () => _showAddDialog(true)),
                 ..._shelves.map((shelf) => _buildListItem(shelf, true)),
                 const Divider(height: 32),
                 
