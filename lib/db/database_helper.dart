@@ -20,12 +20,14 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 1,
+      version: 2, // نسخه رو به 2 ارتقا دادیم برای جدول‌های جدید
       onCreate: _createDB,
+      onUpgrade: _upgradeDB,
     );
   }
 
   Future _createDB(Database db, int version) async {
+    // جدول کتاب‌ها
     await db.execute('''
       CREATE TABLE books (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -42,8 +44,52 @@ class DatabaseHelper {
         tags TEXT
       )
     ''');
+
+    // جدول جدید: قفسه‌ها
+    await db.execute('''
+      CREATE TABLE shelves (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL
+      )
+    ''');
+
+    // جدول جدید: دسته‌بندی‌ها
+    await db.execute('''
+      CREATE TABLE categories (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL
+      )
+    ''');
+
+    // چند تا دسته‌بندی پیش‌فرض اضافه می‌کنیم
+    final defaultCategories = ['عمومی', 'مذهبی', 'ادبیات', 'تاریخی', 'علمی', 'کودک و نوجوان', 'فلسفه'];
+    for (var cat in defaultCategories) {
+      await db.insert('categories', {'name': cat});
+    }
   }
 
+  Future _upgradeDB(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('''
+        CREATE TABLE shelves (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL
+        )
+      ''');
+      await db.execute('''
+        CREATE TABLE categories (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL
+        )
+      ''');
+      final defaultCategories = ['عمومی', 'مذهبی', 'ادبیات', 'تاریخی', 'علمی', 'کودک و نوجوان', 'فلسفه'];
+      for (var cat in defaultCategories) {
+        await db.insert('categories', {'name': cat});
+      }
+    }
+  }
+
+  // --- توابع کتاب (همون‌های قبلی) ---
   Future<Book> create(Book book) async {
     final db = await instance.database;
     final id = await db.insert('books', book.toMap());
@@ -73,5 +119,39 @@ class DatabaseHelper {
   Future<int> delete(int id) async {
     final db = await instance.database;
     return await db.delete('books', where: 'id = ?', whereArgs: [id]);
+  }
+
+  // --- توابع جدید برای قفسه‌ها ---
+  Future<int> addShelf(String name) async {
+    final db = await instance.database;
+    return db.insert('shelves', {'name': name});
+  }
+
+  Future<List<String>> getShelves() async {
+    final db = await instance.database;
+    final result = await db.query('shelves');
+    return result.map((e) => e['name'] as String).toList();
+  }
+
+  Future<int> deleteShelf(String name) async {
+    final db = await instance.database;
+    return db.delete('shelves', where: 'name = ?', whereArgs: [name]);
+  }
+
+  // --- توابع جدید برای دسته‌بندی‌ها ---
+  Future<int> addCategory(String name) async {
+    final db = await instance.database;
+    return db.insert('categories', {'name': name});
+  }
+
+  Future<List<String>> getCategories() async {
+    final db = await instance.database;
+    final result = await db.query('categories');
+    return result.map((e) => e['name'] as String).toList();
+  }
+
+  Future<int> deleteCategory(String name) async {
+    final db = await instance.database;
+    return db.delete('categories', where: 'name = ?', whereArgs: [name]);
   }
 }
