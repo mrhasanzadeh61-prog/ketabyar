@@ -7,10 +7,7 @@ environment:
   sdk: '>=3.0.0 <4.0.0'
 
 dependencies:
-  http: ^1.1.0
   flutter:
-    sdk: flutter
-  flutter_localizations:
     sdk: flutter
   cupertino_icons: ^1.0.6
   sqflite: ^2.3.0
@@ -18,9 +15,9 @@ dependencies:
   image_picker: ^1.0.4
   mobile_scanner: ^5.1.1
   shared_preferences: ^2.2.2
-  intl: ^0.20.3
+  intl: ^0.19.0
   path_provider: ^2.1.1
-  file_picker: 13.3.3
+  http: ^1.1.0
 
 dev_dependencies:
   flutter_test:
@@ -34,8 +31,6 @@ flutter:
   fonts:
     - family: Vazirmatn
       fonts:
-        - asset: assets/Vazirmatn-Regular.ttf
-        - asset: assets/Vazirmatn-Bold.ttf
+        - asset: assets/fonts/Vazirmatn-Regular.ttf
+        - asset: assets/fonts/Vazirmatn-Bold.ttf
           weight: 700
-
-
