@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'add_book_screen.dart';
 import 'settings_screen.dart';
+import 'manage_screen.dart';
 import '../theme/app_theme.dart';
 
 class MainLayout extends StatefulWidget {
@@ -17,6 +18,7 @@ class _MainLayoutState extends State<MainLayout> {
   final List<Widget> _screens = [
     const HomeScreen(),
     const AddBookScreen(),
+    const ManageScreen(),
     const SettingsScreen(),
   ];
 
@@ -37,18 +39,10 @@ class _MainLayoutState extends State<MainLayout> {
         showUnselectedLabels: true,
         type: BottomNavigationBarType.fixed,
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'خانه',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add_circle_outline),
-            label: 'ثبت کتاب',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'تنظیمات',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'خانه'),
+          BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline), label: 'ثبت کتاب'),
+          BottomNavigationBarItem(icon: Icon(Icons.category), label: 'مدیریت'),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'تنظیمات'),
         ],
       ),
     );
