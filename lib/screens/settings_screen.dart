@@ -46,6 +46,7 @@ class SettingsScreen extends StatelessWidget {
 
   Future<void> _restoreDatabase(BuildContext context) async {
     try {
+      // باز کردن پنجره انتخاب فایل
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.any,
       );
